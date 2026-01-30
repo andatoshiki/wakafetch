@@ -1,6 +1,8 @@
 #!/bin/sh
 # Install wakafetch from GitHub releases.
 # Usage: curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/master/scripts/install.sh | sh
+#   Install latest:  curl ... | sh
+#   Install version: VERSION=v2.1.1 curl ... | sh   (or INSTALL_DIR=~/bin VERSION=v1.0.0 curl ... | sh)
 set -e
 
 REPO="andatoshiki/wakafetch"
@@ -48,12 +50,13 @@ fi
 
 mkdir -p "$bindir"
 
-# Resolve latest version
+# Resolve version (tag)
 if [ "$VERSION" = "latest" ]; then
   tag=$(curl -sSf "https://api.github.com/repos/${REPO}/releases/latest" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')
   [ -z "$tag" ] && { echo "error: could not get latest release tag"; exit 1; }
 else
   tag="$VERSION"
+  case "$tag" in v*) ;; *) tag="v${tag}" ;; esac
 fi
 
 # Asset name: wakafetch-{platform}-{arch}-{tag}.tar.gz (zip on Windows)

@@ -25,10 +25,11 @@ Install the latest release (macOS, Linux):
 curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/master/scripts/install.sh | sh
 ```
 
-Installs to `/usr/local/bin` if writable, otherwise `~/.local/bin`. Override with `INSTALL_DIR`:
+Installs to `/usr/local/bin` if writable, otherwise `~/.local/bin`. Override with `INSTALL_DIR` or pin a version with `VERSION`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/master/scripts/install.sh | INSTALL_DIR=~/bin sh
+curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/master/scripts/install.sh | VERSION=v2.1.1 sh
 ```
 
 ### 2.2: From source
