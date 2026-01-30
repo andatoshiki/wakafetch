@@ -340,6 +340,7 @@ func runUpdateCheck(timeoutSeconds int) {
 	if versionGreater(latest, current) {
 		fmt.Println(ui.Clr.Green + "New version " + release.TagName + " available." + ui.Clr.Reset)
 		fmt.Println("Install: curl -fsSL " + installScriptURL + " | sh")
+		fmt.Println("If you installed to a custom path, use the same INSTALL_DIR: curl -fsSL " + installScriptURL + " | INSTALL_DIR=~/bin sh")
 	} else {
 		fmt.Println(ui.Clr.Green + "Already up to date." + ui.Clr.Reset + " (wakafetch @" + Version + ")")
 	}
