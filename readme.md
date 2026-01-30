@@ -94,6 +94,9 @@ Options:
 > [!WARNING]
 > **Historic data and `--range`**: The official [WakaTime](https://wakatime.com) API and hosted [Wakapi](https://wakapi.dev) typically require a **Pro/Premium** plan to return summary or historic data for longer time ranges. Using `--range` (e.g. `1y`, `6m`, or a past year) may result in errors or empty results on free tiers. **Self-hosted Wakapi** has no such limit and returns full historic data.
 
+> [!NOTE]
+> **Free plan limits**: [Wakapi](https://wakapi.dev) official free plan supports up to **one year** of instant API-based retrieval. [WakaTime](https://wakatime.com) free plan supports up to **7 days** only.
+
 ## 5: Examples
 
 - Yesterday (default): `wakafetch`
