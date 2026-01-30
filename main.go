@@ -96,8 +96,12 @@ func handleSummaryFlow(config Config, apiKey, apiURL string) {
 	} else {
 		// Non-year ranges
 		if *config.heatmapFlag {
-			// Heatmap respects --range: show 7d, 30d, 6m, 1y, or a specific year (handled above).
-			startDate, endDate, head, valid := getSummaryRange(*config.rangeFlag)
+			// Heatmap default: last 12 months when no explicit --range. Otherwise respect --range (7d, 30d, etc.).
+			heatmapRange := *config.rangeFlag
+			if heatmapRange == "yesterday" {
+				heatmapRange = "1y"
+			}
+			startDate, endDate, head, valid := getSummaryRange(heatmapRange)
 			if !valid {
 				ui.Errorln("Invalid range for heatmap: use today, yesterday, 7d, 30d, 6m, 1y, or a year (e.g. 2024)")
 				return
