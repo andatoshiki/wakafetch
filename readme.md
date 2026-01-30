@@ -77,7 +77,7 @@ You can always override with `--range` (e.g. `wakafetch -H --range 1y` for a 12â
 
 ## 4: Usage
 
-Default view (yesterday):
+Default view (today):
 
 ```bash
 wakafetch
@@ -93,7 +93,7 @@ Options:
 
 | Flag | Description |
 |------|-------------|
-| `-r`, `--range` | Range: today, yesterday, 7d, 30d, 6m, 1y, all, or a year (e.g. 2024). Default: yesterday |
+| `-r`, `--range` | Range: today, yesterday, 7d, 30d, 6m, 1y, all, or a year (e.g. 2024). Default: today |
 | `-d`, `--days` | Number of days (overrides `--range`) |
 | `-f`, `--full` | Full statistics |
 | `-D`, `--daily` | Daily breakdown table |
@@ -112,7 +112,7 @@ Options:
 
 ## 5: Examples
 
-- Yesterday (default): `wakafetch`
+- Today (default): `wakafetch`
 - Last 7 days: `wakafetch --range 7d`
 - Last 30 days: `wakafetch --range 30d`
 - Full stats for the last year: `wakafetch -r 1y -f`

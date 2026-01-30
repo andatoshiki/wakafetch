@@ -109,9 +109,9 @@ func handleSummaryFlow(config Config, apiKey, apiURL string) {
 	} else {
 		// Non-year ranges
 		if *config.heatmapFlag {
-			// Heatmap default: last 12 months when no explicit --range. Otherwise respect --range (7d, 30d, etc.).
+			// Heatmap default: when range is today/yesterday (CLI default), use backend-aware window. Otherwise respect --range.
 			heatmapRange := *config.rangeFlag
-			if heatmapRange == "yesterday" {
+			if heatmapRange == "yesterday" || heatmapRange == "today" {
 				if isWakaTimeAPI(apiURL) {
 					heatmapRange = "7d"
 				} else {
