@@ -156,6 +156,6 @@ changelog:
 
 release:
   prerelease: auto
-  release_notes_template: |
+  header: |
     wakafetch {{ .Version }}
     Binaries attached.
