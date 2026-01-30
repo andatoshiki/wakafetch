@@ -74,19 +74,24 @@ func isWakaTimeAPI(apiURL string) bool {
 }
 
 func handleStatsFlow(config Config, apiKey, apiURL string) {
-	rangeStr := getRangeStr(*config.rangeFlag)
+       rangeStr := *config.rangeFlag
+       // If --full is set and range is default (today), override to 7d
+       if *config.fullFlag && (rangeStr == "" || rangeStr == "today") {
+	       rangeStr = "7d"
+       }
+       apiRangeStr := getRangeStr(rangeStr)
 
-	data, err := fetchStats(apiKey, apiURL, rangeStr, *config.timeoutFlag)
-	if err != nil {
-		ui.Errorln(err.Error())
-	}
+       data, err := fetchStats(apiKey, apiURL, apiRangeStr, *config.timeoutFlag)
+       if err != nil {
+	       ui.Errorln(err.Error())
+       }
 
-	if *config.jsonFlag {
-		outputJSON(data)
-		return
-	}
+       if *config.jsonFlag {
+	       outputJSON(data)
+	       return
+       }
 
-	ui.DisplayStats(data, *config.fullFlag, rangeStr)
+       ui.DisplayStats(data, *config.fullFlag, apiRangeStr)
 }
 
 func handleSummaryFlow(config Config, apiKey, apiURL string) {
@@ -94,20 +99,26 @@ func handleSummaryFlow(config Config, apiKey, apiURL string) {
 	var err error
 	var heading string
 
-	// Check if range flag is a year number
-	year, isYear := parseYear(*config.rangeFlag)
-	if isYear {
-		// Fetch data for the entire year
-		startDate := fmt.Sprintf("%d-01-01", year)
-		endDate := fmt.Sprintf("%d-12-31", year)
-		data, err = fetchSummaryWithDates(apiKey, apiURL, startDate, endDate, *config.timeoutFlag)
-		if err != nil {
-			ui.Errorln(err.Error())
-			return
-		}
-		heading = fmt.Sprintf("Year %d", year)
-	} else {
-		// Non-year ranges
+	       // If --full is set and range is default (today), override to 7d
+	       rangeFlag := *config.rangeFlag
+	       if *config.fullFlag && (rangeFlag == "" || rangeFlag == "today") {
+		       rangeFlag = "7d"
+	       }
+	       // Check if range flag is a year number
+	       year, isYear := parseYear(rangeFlag)
+	       if isYear {
+		       // Fetch data for the entire year
+		       startDate := fmt.Sprintf("%d-01-01", year)
+		       endDate := fmt.Sprintf("%d-12-31", year)
+		       data, err = fetchSummaryWithDates(apiKey, apiURL, startDate, endDate, *config.timeoutFlag)
+		       if err != nil {
+			       ui.Errorln(err.Error())
+			       return
+		       }
+		       heading = fmt.Sprintf("Year %d", year)
+	       } else {
+		       // Non-year ranges
+		       // Use rangeFlag instead of *config.rangeFlag below
 		if *config.heatmapFlag {
 			// Heatmap default: when range is today/yesterday (CLI default), use backend-aware window. Otherwise respect --range.
 			heatmapRange := *config.rangeFlag
