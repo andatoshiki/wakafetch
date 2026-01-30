@@ -45,22 +45,30 @@ func parseFlags() Config {
 	config.updateFlag = config.boolFlag("update", "u", false, "Check for updates and show install command if newer version exists")
 	config.timeoutFlag = config.intFlag("timeout", "t", 10, "Request timeout in seconds")
 
-	flag.Usage = showCustomHelp
-	flag.Parse()
+	// Version flag
+	versionFlag := config.boolFlag("version", "v", false, "Display version information")
 
-	if !colorsShouldBeEnabled() {
-		ui.DisableColors()
-	}
+	 flag.Usage = showCustomHelp
+	 flag.Parse()
 
-	if *config.helpFlag {
-		showCustomHelp()
-	}
+	 if !colorsShouldBeEnabled() {
+	 	ui.DisableColors()
+	 }
 
-	if *config.daysFlag < 0 {
-		ui.Errorln("Invalid value for --days: must be a positive integer")
-	}
+	 if *config.helpFlag {
+	 	showCustomHelp()
+	 }
 
-	return config
+	       if *versionFlag {
+		       fmt.Println("wakafetch version: v" + Version)
+		       os.Exit(0)
+	       }
+
+	 if *config.daysFlag < 0 {
+	 	ui.Errorln("Invalid value for --days: must be a positive integer")
+	 }
+
+	 return config
 }
 
 var registeredFlags []flagInfo
