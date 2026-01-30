@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/andatoshiki/wakafetch/wakafetch/types"
@@ -26,6 +28,10 @@ import (
 
 func main() {
 	config := parseFlags()
+	if *config.updateFlag {
+		runUpdateCheck(*config.timeoutFlag)
+		return
+	}
 	apiURL, apiKey := loadAPIConfig(config)
 
 	if shouldUseSummaryAPI(config) {
@@ -262,4 +268,72 @@ func outputJSON(data any) {
 		ui.Errorln("Failed to marshal JSON: %s", err.Error())
 	}
 	fmt.Println(string(jsonData))
+}
+
+const updateCheckURL = "https://api.github.com/repos/andatoshiki/wakafetch/releases/latest"
+const installScriptURL = "https://raw.githubusercontent.com/andatoshiki/wakafetch/master/scripts/install.sh"
+
+func runUpdateCheck(timeoutSeconds int) {
+	if timeoutSeconds <= 0 {
+		timeoutSeconds = 10
+	}
+	client := &http.Client{Timeout: time.Duration(timeoutSeconds) * time.Second}
+	req, err := http.NewRequest("GET", updateCheckURL, nil)
+	if err != nil {
+		ui.Errorln("Update check failed: %s", err.Error())
+		return
+	}
+	req.Header.Set("Accept", "application/vnd.github.v3+json")
+	req.Header.Set("User-Agent", "wakafetch")
+	resp, err := client.Do(req)
+	if err != nil {
+		ui.Errorln("Update check failed: %s", err.Error())
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		ui.Errorln("Update check failed: HTTP %s", resp.Status)
+		return
+	}
+	var release struct {
+		TagName string `json:"tag_name"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		ui.Errorln("Update check failed: %s", err.Error())
+		return
+	}
+	latest := strings.TrimPrefix(release.TagName, "v")
+	current := strings.TrimPrefix(Version, "v")
+	if versionGreater(latest, current) {
+		fmt.Println(ui.Clr.Green + "New version " + release.TagName + " available." + ui.Clr.Reset)
+		fmt.Println("Install: curl -fsSL " + installScriptURL + " | sh")
+	} else {
+		fmt.Println(ui.Clr.Green + "Already up to date." + ui.Clr.Reset + " (wakafetch @" + Version + ")")
+	}
+}
+
+// versionGreater returns true if a > b (semver-style: major.minor.patch).
+func versionGreater(a, b string) bool {
+	parse := func(s string) (major, minor, patch int) {
+		parts := strings.Split(s, ".")
+		if len(parts) >= 1 {
+			major, _ = strconv.Atoi(parts[0])
+		}
+		if len(parts) >= 2 {
+			minor, _ = strconv.Atoi(parts[1])
+		}
+		if len(parts) >= 3 {
+			patch, _ = strconv.Atoi(strings.TrimSuffix(parts[2], "-next"))
+		}
+		return major, minor, patch
+	}
+	ma, mi, pa := parse(a)
+	mb, mj, pb := parse(b)
+	if ma != mb {
+		return ma > mb
+	}
+	if mi != mj {
+		return mi > mj
+	}
+	return pa > pb
 }

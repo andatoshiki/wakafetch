@@ -87,6 +87,7 @@ Options:
 | `-H`, `--heatmap` | Activity heatmap; window set by `--range` (7d, 30d, 6m, 1y, or year) |
 | `-k`, `--api-key` | Override API key from config |
 | `-t`, `--timeout` | Request timeout in seconds (default: 10) |
+| `-u`, `--update` | Check for updates and show install command if newer version exists |
 | `-j`, `--json` | Output JSON |
 | `-h`, `--help` | Help |
 
@@ -105,6 +106,7 @@ Options:
 - Heatmap for last 30 days: `wakafetch -H --range 30d`
 - Heatmap for last 12 months: `wakafetch -H` or `wakafetch -H --range 1y`
 - Heatmap for a specific year: `wakafetch -H --range 2024`
+- Check for updates: `wakafetch --update`
 
 ## 6: License
 

@@ -18,6 +18,7 @@ type Config struct {
 	heatmapFlag *bool
 	jsonFlag    *bool
 	helpFlag    *bool
+	updateFlag  *bool
 	timeoutFlag *int
 }
 
@@ -41,6 +42,7 @@ func parseFlags() Config {
 	config.apiKeyFlag = config.stringFlag("api-key", "k", "", "Your WakaTime/Wakapi API key (overrides config)")
 	config.jsonFlag = config.boolFlag("json", "j", false, "Output data in JSON format")
 	config.helpFlag = config.boolFlag("help", "h", false, "Display help information")
+	config.updateFlag = config.boolFlag("update", "u", false, "Check for updates and show install command if newer version exists")
 	config.timeoutFlag = config.intFlag("timeout", "t", 10, "Request timeout in seconds")
 
 	flag.Usage = showCustomHelp
