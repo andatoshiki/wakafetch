@@ -33,7 +33,7 @@ func parseFlags() Config {
 	config := Config{}
 	registeredFlags = nil
 
-	config.rangeFlag = config.stringFlag("range", "r", "7d", "Range of data to fetch (today/yesterday/7d/30d/6m/1y/all/year) (default: 7d)")
+	config.rangeFlag = config.stringFlag("range", "r", "yesterday", "Range of data to fetch (today/yesterday/7d/30d/6m/1y/all/year) (default: yesterday)")
 	config.daysFlag = config.intFlag("days", "d", 0, "Number of days to fetch data for (overrides --range)")
 	config.fullFlag = config.boolFlag("full", "f", false, "Display full statistics")
 	config.dailyFlag = config.boolFlag("daily", "D", false, "Display daily breakdown")

@@ -11,7 +11,7 @@ Original author: **sahaj-b**. Current maintainer: [**andatoshiki**](https://tosh
 - **Quick stats**: Summary of coding activity for configurable time ranges (`--range` or `--days`).
 - **Deep dive**: `--full` shows languages, projects, editors, operating systems, and more.
 - **Daily breakdown**: `--daily` shows a day-by-day table.
-- **Activity heatmap**: `--heatmap` shows a GitHub-style heatmap (last 12 months or a specific year with `--range`).
+- **Activity heatmap**: `--heatmap` shows a GitHub-style heatmap; use `--range` (e.g. 7d, 30d, 6m, 1y) for a smaller window, or a year (e.g. 2024) for a full year.
 - **WakaTime and Wakapi**: Works with the official [WakaTime](https://wakatime.com) API and [Wakapi](https://github.com/muety/wakapi), including self-hosted instances.
 - **Zero-config**: Reads API key from `~/.wakatime.cfg`; override with `--api-key` if needed.
 
@@ -80,11 +80,11 @@ Options:
 
 | Flag | Description |
 |------|-------------|
-| `-r`, `--range` | Range: today, yesterday, 7d, 30d, 6m, 1y, all, or a year (e.g. 2024). Default: 7d |
+| `-r`, `--range` | Range: today, yesterday, 7d, 30d, 6m, 1y, all, or a year (e.g. 2024). Default: yesterday |
 | `-d`, `--days` | Number of days (overrides `--range`) |
 | `-f`, `--full` | Full statistics |
 | `-D`, `--daily` | Daily breakdown table |
-| `-H`, `--heatmap` | Activity heatmap (last 12 months or year via `--range`) |
+| `-H`, `--heatmap` | Activity heatmap; window set by `--range` (7d, 30d, 6m, 1y, or year) |
 | `-k`, `--api-key` | Override API key from config |
 | `-t`, `--timeout` | Request timeout in seconds (default: 10) |
 | `-j`, `--json` | Output JSON |
@@ -95,12 +95,15 @@ Options:
 
 ## 5: Examples
 
-- Last 7 days (default): `wakafetch`
+- Yesterday (default): `wakafetch`
+- Last 7 days: `wakafetch --range 7d`
 - Last 30 days: `wakafetch --range 30d`
 - Full stats for the last year: `wakafetch -r 1y -f`
 - Last 100 days: `wakafetch --days 100`
 - Daily breakdown for 2 weeks: `wakafetch --days 14 --daily`
-- Heatmap for last 12 months: `wakafetch -H`
+- Heatmap for last 7 days: `wakafetch -H --range 7d`
+- Heatmap for last 30 days: `wakafetch -H --range 30d`
+- Heatmap for last 12 months: `wakafetch -H` or `wakafetch -H --range 1y`
 - Heatmap for a specific year: `wakafetch -H --range 2024`
 
 ## 6: License

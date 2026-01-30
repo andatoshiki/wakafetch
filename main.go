@@ -90,17 +90,18 @@ func handleSummaryFlow(config Config, apiKey, apiURL string) {
 	} else {
 		// Non-year ranges
 		if *config.heatmapFlag {
-			// For heatmap without a specific year, always show the most recent 12 months.
-			today := time.Now()
-			endDate := today.Format("2006-01-02")
-			startDate := today.AddDate(-1, 0, 1).Format("2006-01-02")
-
+			// Heatmap respects --range: show 7d, 30d, 6m, 1y, or a specific year (handled above).
+			startDate, endDate, head, valid := getSummaryRange(*config.rangeFlag)
+			if !valid {
+				ui.Errorln("Invalid range for heatmap: use today, yesterday, 7d, 30d, 6m, 1y, or a year (e.g. 2024)")
+				return
+			}
+			heading = head
 			data, err = fetchSummaryWithDates(apiKey, apiURL, startDate, endDate, *config.timeoutFlag)
 			if err != nil {
 				ui.Errorln(err.Error())
 				return
 			}
-			heading = "Last 12 months"
 		} else {
 			// Use existing logic for preset ranges
 			rangeStr := getRangeStr(*config.rangeFlag)
@@ -176,6 +177,42 @@ func parseYear(rangeFlag string) (int, bool) {
 		return year, true
 	}
 	return 0, false
+}
+
+// getSummaryRange returns (startDate, endDate, heading, valid) for summary/heatmap by range flag.
+// Used when --heatmap is set and range is not a year.
+func getSummaryRange(rangeFlag string) (startDate, endDate, heading string, valid bool) {
+	today := time.Now()
+	switch rangeFlag {
+	case "today":
+		d := today.Format("2006-01-02")
+		return d, d, "Today", true
+	case "yesterday":
+		d := today.AddDate(0, 0, -1).Format("2006-01-02")
+		return d, d, "Yesterday", true
+	case "7d":
+		end := today.Format("2006-01-02")
+		start := today.AddDate(0, 0, -6).Format("2006-01-02")
+		return start, end, "Last 7 days", true
+	case "30d":
+		end := today.Format("2006-01-02")
+		start := today.AddDate(0, 0, -29).Format("2006-01-02")
+		return start, end, "Last 30 days", true
+	case "6m":
+		end := today.Format("2006-01-02")
+		start := today.AddDate(0, -6, 0).Format("2006-01-02")
+		return start, end, "Last 6 months", true
+	case "1y", "all":
+		// For heatmap, "all" is capped at last 12 months
+		end := today.Format("2006-01-02")
+		start := today.AddDate(-1, 0, 1).Format("2006-01-02")
+		if rangeFlag == "all" {
+			return start, end, "Last 12 months", true
+		}
+		return start, end, "Last 12 months", true
+	default:
+		return "", "", "", false
+	}
 }
 
 func getRangeStr(rangeFlag string) string {
