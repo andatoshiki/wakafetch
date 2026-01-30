@@ -22,13 +22,13 @@ Original author: **sahaj-b**. Current maintainer: [**andatoshiki**](https://tosh
 Install the latest release (macOS, Linux):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/main/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/master/scripts/install.sh | sh
 ```
 
 Installs to `/usr/local/bin` if writable, otherwise `~/.local/bin`. Override with `INSTALL_DIR`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/main/scripts/install.sh | INSTALL_DIR=~/bin sh
+curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/master/scripts/install.sh | INSTALL_DIR=~/bin sh
 ```
 
 ### 2.2: From source

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Install wakafetch from GitHub releases.
-# Usage: curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/main/scripts/install.sh | sh
+# Usage: curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/master/scripts/install.sh | sh
 set -e
 
 REPO="andatoshiki/wakafetch"
