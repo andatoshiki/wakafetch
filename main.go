@@ -34,7 +34,7 @@ func main() {
 	}
 	apiURL, apiKey := loadAPIConfig(config)
 
-	if shouldUseSummaryAPI(config) {
+	if shouldUseSummaryAPI(config, apiURL) {
 		handleSummaryFlow(config, apiKey, apiURL)
 	} else {
 		handleStatsFlow(config, apiKey, apiURL)
@@ -54,10 +54,23 @@ func loadAPIConfig(config Config) (string, string) {
 	return apiURL, apiKey
 }
 
-func shouldUseSummaryAPI(config Config) bool {
-	// Use summary API if: days flag is set, daily/heatmap flags are set, or range is a year
+func shouldUseSummaryAPI(config Config, apiURL string) bool {
+	// Use summary API if: days flag is set, daily/heatmap flags are set, or range is a year.
+	// For today/yesterday: only WakaTime requires summary (its stats API does not support those);
+	// Wakapi stats API supports today, yesterday, last_7_days, etc., so we use stats there.
 	_, isYear := parseYear(*config.rangeFlag)
+	rf := *config.rangeFlag
+	if rf == "today" || rf == "yesterday" {
+		if isWakaTimeAPI(apiURL) {
+			return true
+		}
+	}
 	return *config.daysFlag != 0 || *config.dailyFlag || *config.heatmapFlag || isYear
+}
+
+// isWakaTimeAPI returns true when apiURL is the official WakaTime API (not Wakapi/self-hosted).
+func isWakaTimeAPI(apiURL string) bool {
+	return strings.Contains(apiURL, "wakatime.com")
 }
 
 func handleStatsFlow(config Config, apiKey, apiURL string) {
@@ -99,7 +112,11 @@ func handleSummaryFlow(config Config, apiKey, apiURL string) {
 			// Heatmap default: last 12 months when no explicit --range. Otherwise respect --range (7d, 30d, etc.).
 			heatmapRange := *config.rangeFlag
 			if heatmapRange == "yesterday" {
-				heatmapRange = "1y"
+				if isWakaTimeAPI(apiURL) {
+					heatmapRange = "7d"
+				} else {
+					heatmapRange = "1y"
+				}
 			}
 			startDate, endDate, head, valid := getSummaryRange(heatmapRange)
 			if !valid {
@@ -116,23 +133,30 @@ func handleSummaryFlow(config Config, apiKey, apiURL string) {
 			// Use existing logic for preset ranges
 			rangeStr := getRangeStr(*config.rangeFlag)
 			days := *config.daysFlag
-			validRange := true
-			if days == 0 {
+
+			// WakaTime stats API does not support "today" or "yesterday"; use summary with exact dates.
+			if rangeStr == "today" || rangeStr == "yesterday" {
+				startDate, endDate, head, _ := getSummaryRange(*config.rangeFlag)
+				heading = head
+				data, err = fetchSummaryWithDates(apiKey, apiURL, startDate, endDate, *config.timeoutFlag)
+			} else if days == 0 {
+				validRange := true
 				days, validRange = map[string]int{
-					"today":         1,
 					"last_7_days":   7,
 					"last_30_days":  30,
 					"last_6_months": 183,
 					"last_year":     365,
 				}[rangeStr]
-			}
 
-			if !validRange {
-				ui.Errorln("This range isn't supported with `--daily` or `--heatmap` flags. Use `--days` instead")
-				return
-			}
+				if !validRange {
+					ui.Errorln("This range isn't supported with `--daily` or `--heatmap` flags. Use `--days` instead")
+					return
+				}
 
-			data, err = fetchSummary(apiKey, apiURL, days, *config.timeoutFlag)
+				data, err = fetchSummary(apiKey, apiURL, days, *config.timeoutFlag)
+			} else {
+				data, err = fetchSummary(apiKey, apiURL, days, *config.timeoutFlag)
+			}
 			if err != nil {
 				ui.Errorln(err.Error())
 				return
@@ -147,6 +171,7 @@ func handleSummaryFlow(config Config, apiKey, apiURL string) {
 			} else {
 				headingMap := map[string]string{
 					"today":         "Today",
+					"yesterday":     "Yesterday",
 					"last_7_days":   "Last 7 days",
 					"last_30_days":  "Last 30 days",
 					"last_6_months": "Last 6 months",
@@ -225,6 +250,10 @@ func getSummaryRange(rangeFlag string) (startDate, endDate, heading string, vali
 	}
 }
 
+// getRangeStr maps user --range flag to the API range identifier for stats/summary.
+// WakaTime stats: last_7_days, last_30_days, last_6_months, last_year, all_time (no today/yesterday).
+// Wakapi stats: today, yesterday, last_7_days, 7_days, last_30_days, 30_days, last_6_months, 6_months,
+// last_12_months, last_year, all_time, any. We use last_* names for shared compatibility.
 func getRangeStr(rangeFlag string) string {
 	// Check if it's a year first
 	_, isYear := parseYear(rangeFlag)

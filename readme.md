@@ -11,8 +11,8 @@ Original author: **sahaj-b**. Current maintainer: [**andatoshiki**](https://tosh
 - **Quick stats**: Summary of coding activity for configurable time ranges (`--range` or `--days`).
 - **Deep dive**: `--full` shows languages, projects, editors, operating systems, and more.
 - **Daily breakdown**: `--daily` shows a day-by-day table.
-- **Activity heatmap**: `--heatmap` shows a GitHub-style heatmap (default: last 12 months); use `--range` (e.g. 7d, 30d, 6m, 1y) for a smaller window, or a year (e.g. 2024) for a full year.
-- **WakaTime and Wakapi**: Works with the official [WakaTime](https://wakatime.com) API and [Wakapi](https://github.com/muety/wakapi), including self-hosted instances.
+- **Activity heatmap**: `--heatmap` shows a GitHub-style heatmap; default window is backend-aware (WakaTime: last 7 days, Wakapi: last 12 months). Use `--range` (e.g. 7d, 30d, 6m, 1y) or a year (e.g. 2024).
+- **WakaTime and Wakapi**: Works with the official [WakaTime](https://wakatime.com) API and [Wakapi](https://github.com/muety/wakapi), including self-hosted instances. Backend is auto-detected from `api_url`; today/yesterday and heatmap defaults differ per backend.
 - **Zero-config**: Reads API key from `~/.wakatime.cfg`; override with `--api-key` if needed.
 
 ## 2: Installation
@@ -63,6 +63,18 @@ For Wakapi or a self-hosted instance, set `api_url` to your instance (e.g. `http
 
 If you use the WakaTime editor extension, this config is usually already present.
 
+### 3.1: WakaTime vs Wakapi behavior
+
+wakafetch detects the backend from `api_url` (WakaTime when the URL contains `wakatime.com`, otherwise Wakapi) and adjusts behavior:
+
+| Behavior | WakaTime (official) | Wakapi (official / self-hosted) |
+|----------|---------------------|---------------------------------|
+| **Default heatmap (`-H`)** | Last 7 days | Last 12 months |
+| **Today / yesterday range** | Uses Summary API (stats endpoint does not support these ranges) | Uses Stats API (`today`, `yesterday` supported) |
+| **Stats range identifiers** | `last_7_days`, `last_30_days`, `last_6_months`, `last_year`, `all_time` | Same plus `today`, `yesterday`; also accepts `7_days`, `30_days`, `last_12_months`, `any`, etc. |
+
+You can always override with `--range` (e.g. `wakafetch -H --range 1y` for a 12‑month heatmap on WakaTime).
+
 ## 4: Usage
 
 Default view (yesterday):
@@ -85,7 +97,7 @@ Options:
 | `-d`, `--days` | Number of days (overrides `--range`) |
 | `-f`, `--full` | Full statistics |
 | `-D`, `--daily` | Daily breakdown table |
-| `-H`, `--heatmap` | Activity heatmap (default: last 12 months); or set by `--range` (7d, 30d, 6m, 1y, or year) |
+| `-H`, `--heatmap` | Activity heatmap; default window: WakaTime = last 7 days, Wakapi = last 12 months. Override with `--range` (7d, 30d, 6m, 1y, or year) |
 | `-k`, `--api-key` | Override API key from config |
 | `-t`, `--timeout` | Request timeout in seconds (default: 10) |
 | `-u`, `--update` | Check for updates and show install command if newer version exists |
@@ -106,9 +118,10 @@ Options:
 - Full stats for the last year: `wakafetch -r 1y -f`
 - Last 100 days: `wakafetch --days 100`
 - Daily breakdown for 2 weeks: `wakafetch --days 14 --daily`
+- Heatmap (default: last 7 days on WakaTime, last 12 months on Wakapi): `wakafetch -H`
 - Heatmap for last 7 days: `wakafetch -H --range 7d`
 - Heatmap for last 30 days: `wakafetch -H --range 30d`
-- Heatmap (default: last 12 months): `wakafetch -H` or `wakafetch -H --range 1y`
+- Heatmap for last 12 months: `wakafetch -H --range 1y`
 - Heatmap for a specific year: `wakafetch -H --range 2024`
 - Check for updates: `wakafetch --update`
 
