@@ -17,7 +17,21 @@ Original author: **sahaj-b**. Current maintainer: [**andatoshiki**](https://tosh
 
 ## 2: Installation
 
-### 2.1: From source
+### 2.1: One-liner (curl)
+
+Install the latest release (macOS, Linux):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/main/scripts/install.sh | sh
+```
+
+Installs to `/usr/local/bin` if writable, otherwise `~/.local/bin`. Override with `INSTALL_DIR`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/andatoshiki/wakafetch/main/scripts/install.sh | INSTALL_DIR=~/bin sh
+```
+
+### 2.2: From source
 
 ```bash
 git clone https://github.com/andatoshiki/wakafetch.git
@@ -26,7 +40,7 @@ go build
 ./wakafetch --help
 ```
 
-### 2.2: With Go install
+### 2.3: With Go install
 
 Installs the binary to `$GOPATH/bin` or `$GOBIN`:
 
